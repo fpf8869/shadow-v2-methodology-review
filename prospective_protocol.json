@@ -1,34 +1,33 @@
 {
   "protocol_id": "NCAAF-SHADOW-V2-DISTRIBUTION-PROSPECTIVE-0.1",
   "status": "DRAFT_FOR_INDEPENDENT_REVIEW_NOT_APPROVED",
-  "scope": "NCAAF only",
+  "scope": "NCAAF only; original Shadow and original Shadow V2 forecast unchanged",
   "candidates": [
-    "independent_poisson",
-    "shared_poisson_10pct",
-    "gamma_poisson_fixed_k20"
+    {"name": "independent_poisson", "parameter": "no shared component"},
+    {"name": "shared_poisson_10pct", "parameter": "fixed common component 10%"},
+    {"name": "gamma_poisson_fixed_k20", "parameter": "shared Gamma shape k=20, not calibrated"}
   ],
-  "capture": {
-    "pre_kickoff": true,
-    "source_hash": true,
-    "original_publication_vintage": true,
-    "external_timestamp_attestation": true,
-    "model_code_hash": true,
-    "immutable_three_distributions": true,
+  "selection": "No selection based on the already-exposed Oct 5-11 cohort; parameters frozen prospectively only after independent review of protocol",
+  "prospective_capture": {
+    "before_kickoff": true,
+    "same_source_version": true,
+    "source_sha256_required": true,
+    "original_publication_vintage_required": true,
+    "external_timestamp_attestation_required": true,
+    "predictor_code_hash_required": true,
+    "distribution_code_hash_required": true,
+    "immutable_mean_and_three_pmf_receipts_required": true,
     "no_market_inputs": true,
     "no_postgame_reconstruction": true
   },
+  "eligibility": "All completed FBS regular-season games with full strictly-prior source features; exclusions and reasons frozen before kickoff",
   "evaluation": {
-    "min_eligible_future_games": 100,
-    "min_future_weeks": 4,
-    "primary": "paired joint exact-score log loss",
-    "secondary": [
-      "home-win Brier",
-      "score CRPS",
-      "calibration",
-      "exclusion rate"
-    ],
-    "release": "independent review plus explicit approval; never automatic"
+    "minimum_eligible_games_before_release_review": 100,
+    "minimum_distinct_future_weeks": 4,
+    "primary_metric": "joint exact-score mean negative log likelihood",
+    "secondary_metrics": ["home-win Brier", "score CRPS or ranked probability", "margin/total calibration", "reliability by predicted-probability bin", "home/away/neutral venue strata", "coverage and exclusion rate"],
+    "comparison": "Paired game-by-game differences to both frozen Poisson references, with uncertainty intervals; no opportunistic subgroup selection",
+    "release_gate": "Independent review of methodology, source integrity, parameter freeze and prospective results; explicit user-authorized promotion after evidence, never automatic"
   },
-  "production_approved": false,
-  "fire_authorized": false
+  "operating_state": "PAPER_ONLY_NO_MGM_EV_NO_FIRE"
 }
