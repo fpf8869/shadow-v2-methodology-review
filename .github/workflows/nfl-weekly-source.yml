@@ -1,0 +1,36 @@
+name: NFL Atlas authenticated weekly team statistics
+on:
+  push:
+    paths:
+      - '.github/workflows/nfl-weekly-source.yml'
+  workflow_dispatch:
+jobs:
+  authenticate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download same-version weekly stats
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p weekly
+          curl -fLsS --retry 3 -o weekly/stats_team_week_2026.csv https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_2026.csv
+          echo '16dd6beebe0eb11b77cb29c837a78dd038a3e716dc74c646a2a6cb24bd6c00cf  weekly/stats_team_week_2026.csv' | sha256sum -c
+          python - <<'PY'
+          import csv,json
+          p='weekly/stats_team_week_2026.csv'
+          with open(p,newline='') as f:
+            r=csv.DictReader(f);cols=r.fieldnames;rows=list(r)
+          needed=['passing_epa','rushing_epa','passing_yards','sack_yards_lost','rushing_yards','passing_first_downs','rushing_first_downs','passing_interceptions','fumbles_lost_total','sacks_suffered','def_qb_hits','passing_20','rushing_20','attempts','carries']
+          assert all(x in cols for x in needed),[x for x in needed if x not in cols]
+          target=[r for r in rows if str(r['week'])=='5' and r['team'] in ('DEN','LAC','SEA','SF') and r['season_type']=='REG']
+          assert len(target)==4,[(r['team'],r['week']) for r in target]
+          with open('weekly/target_week5.json','w') as f:json.dump(target,f,indent=2)
+          with open('weekly/summary.json','w') as f:json.dump({'all_rows':len(rows),'target_rows':len(target),'required_fields':needed,'target_teams':[r['team'] for r in target]},f,indent=2)
+          print('Authenticated four 2026 team rows; source columns:',len(cols))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atlas-weekly-2026-source-authenticated
+          path: weekly/
+          retention-days: 14
