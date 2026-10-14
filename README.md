@@ -1,25 +1,29 @@
-# NCAAF Shadow V2 — volunteer methodological review
+# NCAAF Shadow V2 — open volunteer methodology review
 
-**Status: RESEARCH ONLY. Not independently approved, not predictively certified, no betting authority.**
+**Research-only. No independent reviewer sign-off, no production release, no MGM EV, no FIRE.**
 
-This public repository requests unpaid independent review of a college-football joint-score distribution and draft prospective protocol. It is **not** the original Shadow production engine.
+This repository publishes the experimental mean predictor and three score-distribution implementations, along with a script to regenerate the already-exposed 58-game diagnostic from authenticated public data. It is **not** the original Shadow production engine.
 
-## Available for code review
+## Files
+- `shadow_v2_research.py` — unchanged separate V2 experimental score-mean model.
+- `test_shadow_v2.py` — mean-predictor software checks.
+- `shadow_joint_poisson_v1.py` — independent and 10% shared Poisson score baselines.
+- `joint_gamma_poisson.py` — fixed k=20 common-Gamma bivariate score model.
+- `test_joint_gamma_poisson.py` — mathematical distribution tests.
+- `evaluate_exposed.py` — regenerates Oct 5–11, 2026 scores and proper metrics from public input files.
+- `prospective_protocol.json`, `test_protocol.py` — **draft**, not approved prospective gate.
+- `REVIEW_QUESTIONS.md`, `REPRODUCIBILITY.md` — independent review questions and source hashes.
+- [Volunteer review issue #1](https://github.com/fpf8869/shadow-v2-methodology-review/issues/1).
 
-- `joint_gamma_poisson.py`: exact tested research implementation of common-Gamma mixture with k=20 fixed provisionally.
-- `test_joint_gamma_poisson.py`: tests for nonnegative support, mass, tail bound, event probabilities and symmetry.
-- `prospective_protocol.json`: compact public protocol outline (draft, not signed off).
-- `REVIEW_QUESTIONS.md`: six concrete statistical review questions.
-- [Public review issue #1](https://github.com/fpf8869/shadow-v2-methodology-review/issues/1).
+## Reproduce (Python 3.11+)
+```bash
+python -m pip install numpy pandas scipy scikit-learn
+python -m unittest -v test_shadow_v2 test_joint_gamma_poisson test_protocol
+python evaluate_exposed.py --schedule cfb_schedule_2026.csv --box team_box_2026.csv --passing adv_passing_2026.csv --out reproduced
+```
 
-The full mean predictor, all its historical data and end-to-end score evaluation are **not yet published here**. Therefore reviewers can currently reproduce and critique the distribution component, but **cannot independently reproduce the claimed 58-game end-to-end metrics** from this repository. This limitation must not be interpreted as completed independent review.
+The input files must match SHA-256 values embedded in `shadow_v2_research.py`; fetch from sportsdataverse GitHub releases. Do not use newer revised files without independently checking and recording differences.
 
-### Research assumptions and observed diagnostics
+The **October 5–11 evaluation is already exposed** and cannot select model parameters or count toward untouched validation. The model was not externally timestamp-attested for each historical game. We invite mathematical and code criticisms, including parameter choice, missing features, source-vintage leakage, calibration, and uncertainty intervals.
 
-- Common Gamma intensity: G~Gamma(k, rate=k); H|G~Poisson(mu_h G), A|G~Poisson(mu_a G).
-- Mean scores are fixed externally; k=20 is not calibrated.
-- Model cannot represent negative home/away covariance.
-- Exposed October 5–11, 2026 58-game cohort: joint log loss approximately 9.213 for Gamma–Poisson, 11.481 independent Poisson, 11.399 shared Poisson. **These are not untouched validation.**
-- Predicted home-win rate around 71% vs observed 55% in that cohort suggests calibration concern.
-
-No production release, MGM EV, FIRE, or backdated forecast freeze is authorized. Volunteer comments are not automatically formal approval.
+The prospective cohort remains 0 eligible / 100 required across four weeks pending independent review and external source/timestamp gates. An issue comment is not automatic approval.
