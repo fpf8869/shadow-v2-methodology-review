@@ -32,7 +32,7 @@ jobs:
               if (depth>8L) return(invisible(NULL))
               if (is.data.frame(obj)) {
                 found <<- found+1L
-                write.csv(obj,paste0("output/",f,".table",found,".csv"),row.names=FALSE)
+                flat <- obj; for (nm in names(flat)) { if (is.list(flat[[nm]])) flat[[nm]] <- vapply(flat[[nm]],function(z) paste(capture.output(dput(z)),collapse=""),character(1)) }; write.csv(flat,paste0("output/",f,".table",found,".csv"),row.names=FALSE)
                 writeLines(names(obj),paste0("output/",f,".table",found,".columns.txt"))
                 cat(f,path,nrow(obj),ncol(obj),"\\n")
               } else if (is.list(obj)) {
