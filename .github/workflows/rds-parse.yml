@@ -20,7 +20,7 @@ jobs:
       - name: Decode RDS
         run: |
           mkdir output
-          Rscript -e 'for (f in c("den.rds","sea.rds")) { x <- readRDS(f); stopifnot(is.data.frame(x)); write.csv(x,paste0("output/",f,".csv"),row.names=FALSE); writeLines(names(x),paste0("output/",f,".columns.txt")); cat(f,nrow(x),ncol(x),"\n") }'
+          Rscript -e 'for (f in c("den.rds","sea.rds")) { x <- readRDS(f); cat(f,"class",paste(class(x),collapse=","),"length",length(x),"\n"); if (is.list(x) && !is.data.frame(x)) { saveRDS(lapply(x,class),paste0("output/",f,".classes.rds")); x <- as.data.frame(x,optional=TRUE) }; stopifnot(is.data.frame(x)); write.csv(x,paste0("output/",f,".csv"),row.names=FALSE); writeLines(names(x),paste0("output/",f,".columns.txt")); cat(f,nrow(x),ncol(x),"\n") }'
       - uses: actions/upload-artifact@v4
         with:
           name: revised-week5-rds-decoded
