@@ -17,10 +17,33 @@ jobs:
           curl -fLsS --retry 3 -o sea.rds https://github.com/nflverse/nflverse-pbp/releases/download/raw_pbp_2026/2026_05_SF_SEA.rds
           echo '537968dc811aae6bc0c55b7f28127f97f74b7a05bda33e0adc1cc6f0695c4a6a  den.rds' | sha256sum -c
           echo 'da3922c1e308676c6e12b8af6cf2ea96762beb9bdd51181b27a889159c654189  sea.rds' | sha256sum -c
-      - name: Decode RDS
+      - name: Decode nested RDS safely
+        shell: bash
         run: |
-          mkdir output
-          Rscript -e 'for (f in c("den.rds","sea.rds")) { x <- readRDS(f); cat(f,"class",paste(class(x),collapse=","),"length",length(x),"\n"); if (is.list(x) && !is.data.frame(x)) { saveRDS(lapply(x,class),paste0("output/",f,".classes.rds")); x <- as.data.frame(x,optional=TRUE) }; stopifnot(is.data.frame(x)); write.csv(x,paste0("output/",f,".csv"),row.names=FALSE); writeLines(names(x),paste0("output/",f,".columns.txt")); cat(f,nrow(x),ncol(x),"\n") }'
+          mkdir -p output
+          cat > extract.R <<'RSCRIPT'
+          for (f in c("den.rds","sea.rds")) {
+            x <- readRDS(f)
+            sink(paste0("output/",f,".structure.txt"))
+            str(x, max.level=4, list.len=40)
+            sink()
+            found <- 0L
+            visit <- function(obj,path,depth=0L) {
+              if (depth>8L) return(invisible(NULL))
+              if (is.data.frame(obj)) {
+                found <<- found+1L
+                write.csv(obj,paste0("output/",f,".table",found,".csv"),row.names=FALSE)
+                writeLines(names(obj),paste0("output/",f,".table",found,".columns.txt"))
+                cat(f,path,nrow(obj),ncol(obj),"\\n")
+              } else if (is.list(obj)) {
+                for (i in seq_along(obj)) visit(obj[[i]],paste0(path,"/",names(obj)[i]),depth+1L)
+              }
+            }
+            visit(x,"root")
+            if (found==0L) cat("NO_DATA_FRAMES",f,"\\n")
+          }
+          RSCRIPT
+          Rscript extract.R
       - uses: actions/upload-artifact@v4
         with:
           name: revised-week5-rds-decoded
