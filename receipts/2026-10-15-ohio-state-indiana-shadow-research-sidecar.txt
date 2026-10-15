@@ -1,0 +1,10 @@
+Shadow NCAAF Ohio State–Indiana research sidecar checkpoint
+Event: NCAAF-2026-W07-OHIOSTATE-INDIANA
+Status: RESEARCH_ONLY; NOT_CANONICAL_SHADOW_PROBABILITIES; NOT_BETTING_AUTHORITY
+Original Shadow v2 unchanged engine SHA256: 82ddd24bd2ee1a08072709bbdf8a3a736c9f9e55a38275b8e3659ff65ab98099
+Original Shadow fair file SHA256: d52ab26e4795696ae6462ad5515deb39a9397384b47f8f46e2e3b7c7fac31aef
+Research-only sidecar vector SHA256: 8724f72d3a571c03ecea712361a540520dac2be3721f0df3d9d36aed65627f0a
+Research-only local manifest SHA256: 3be03c4178600e3f7e37023c710a8b6168d549dfaa5d30b724a3b91410258a72
+Source: 2022–2025 historical scores, n=3483, empirical centered margins.
+Caveat: original SP+/FPI source publication times not independently authenticated; probability sidecar uncalibrated against original Shadow residuals.
+No retrospective dating. GitHub commit timestamp will be the independent publication evidence.
